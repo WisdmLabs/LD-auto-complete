@@ -3,12 +3,12 @@
  * Handles the setting section for autocompletion.
  *
  * @since      1.0.0
- * @package    ld_auto_complete
- * @subpackage ld_custom_auto_complete/modules/classes
+ * @package    Ld_Custom_Auto_Complete
+ * @subpackage Ld_Custom_Auto_Complete/admin
  * @author     WisdmLabs <support@wisdmlabs.com>
  */
 
-namespace Ld_Custom_Auto_Complete\Modules\Classes;
+namespace Ld_Custom_Auto_Complete\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -120,13 +120,14 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Settings' ) ) {
 				return;
 			}
 
-			if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'update-post_' . $post_id ) ) {
-				$my_settings_value = '';
-				if ( isset( $_POST['learndash-lesson-display-content-settings'][ LD_CUSTOM_AUTO_COMPLETE_META ] ) ) {
-					$my_settings_value = sanitize_text_field( wp_unslash( $_POST['learndash-lesson-display-content-settings'][ LD_CUSTOM_AUTO_COMPLETE_META ] ) );
-				}
-					update_post_meta( $post_id, LD_CUSTOM_AUTO_COMPLETE_META, $my_settings_value );
+			if ( ! isset( $_POST['_wpnonce'] ) && ! wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'update-post_' . $post_id ) ) {
+				return;
 			}
+			$my_settings_value = '';
+			if ( isset( $_POST['learndash-lesson-display-content-settings'][ LD_CUSTOM_AUTO_COMPLETE_META ] ) ) {
+				$my_settings_value = sanitize_text_field( wp_unslash( $_POST['learndash-lesson-display-content-settings'][ LD_CUSTOM_AUTO_COMPLETE_META ] ) );
+			}
+			update_post_meta( $post_id, LD_CUSTOM_AUTO_COMPLETE_META, $my_settings_value );
 		}
 
 		/**
@@ -142,13 +143,14 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Settings' ) ) {
 				return;
 			}
 
-			if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'update-post_' . $post_id ) ) {
-				$my_settings_value = '';
-				if ( isset( $_POST['learndash-topic-display-content-settings'][ LD_CUSTOM_AUTO_COMPLETE_META ] ) ) {
-					$my_settings_value = sanitize_text_field( wp_unslash( $_POST['learndash-topic-display-content-settings'][ LD_CUSTOM_AUTO_COMPLETE_META ] ) );
-				}
-					update_post_meta( $post_id, LD_CUSTOM_AUTO_COMPLETE_META, $my_settings_value );
+			if ( ! isset( $_POST['_wpnonce'] ) && ! wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'update-post_' . $post_id ) ) {
+				return;
 			}
+			$my_settings_value = '';
+			if ( isset( $_POST['learndash-topic-display-content-settings'][ LD_CUSTOM_AUTO_COMPLETE_META ] ) ) {
+				$my_settings_value = sanitize_text_field( wp_unslash( $_POST['learndash-topic-display-content-settings'][ LD_CUSTOM_AUTO_COMPLETE_META ] ) );
+			}
+				update_post_meta( $post_id, LD_CUSTOM_AUTO_COMPLETE_META, $my_settings_value );
 		}
 	}
 }

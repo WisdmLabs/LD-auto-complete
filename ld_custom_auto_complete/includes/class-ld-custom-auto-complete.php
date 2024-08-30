@@ -23,22 +23,15 @@ use Ld_Custom_Auto_Complete\Includes\Ld_Custom_Auto_Complete_Deactivator;
 use Ld_Custom_Auto_Complete\Includes\Ld_Custom_Auto_Complete_I18n;
 
 /**
- * Admin Class
- */
-use Ld_Custom_Auto_Complete\Admin\Ld_Custom_Auto_Complete_Admin;
-
-/**
  * Public Class
  */
-use Ld_Custom_Auto_Complete\Public\Ld_Custom_Auto_Complete_Public;
+use Ld_Custom_Auto_Complete\Public\Ld_Custom_Auto_Complete_Frontend;
 
 /**
  * Functionality Classes
  */
-use Ld_Custom_Auto_Complete\Modules\Classes\Ld_Custom_Auto_Complete_Settings;
-use Ld_Custom_Auto_Complete\Modules\Classes\Ld_Custom_Auto_Complete_Lesson;
-use Ld_Custom_Auto_Complete\Modules\Classes\Ld_Custom_Auto_Complete_Topic;
-use Ld_Custom_Auto_Complete\Modules\Classes\Ld_Custom_Auto_Complete_Timer;
+use Ld_Custom_Auto_Complete\Admin\Ld_Custom_Auto_Complete_Settings;
+use Ld_Custom_Auto_Complete\Includes\Ld_Custom_Auto_Complete_Handler;
 /**
  * The core plugin class.
  *
@@ -104,12 +97,9 @@ class Ld_Custom_Auto_Complete {
 		$this->handle_activation();
 		$this->handle_deactivation();
 		$this->set_locale();
-		$this->define_admin_hooks();
 		$this->define_public_hooks();
 		$this->add_learndash_setting();
-		$this->autocomplete_lesson();
-		$this->autocomplete_topic();
-		$this->autocomplete_timer();
+		$this->autocomplete_handler();
 	}
 
 	/**
@@ -155,35 +145,20 @@ class Ld_Custom_Auto_Complete {
 		require_once plugin_dir_path( __DIR__ ) . 'includes/class-ld-custom-auto-complete-i18n.php';
 
 		/**
-		 * The class responsible for defining all actions that occur in the admin area.
-		 */
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-ld-custom-auto-complete-admin.php';
-
-		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( __DIR__ ) . 'public/class-ld-custom-auto-complete-public.php';
+		require_once plugin_dir_path( __DIR__ ) . 'public/class-ld-custom-auto-complete-frontend.php';
 
 		/**
 		 * The class responsible for defining all acttions related to adding and saving setting to learnDash.
 		 */
-		require_once plugin_dir_path( __DIR__ ) . 'modules/classes/class-ld-custom-auto-complete-settings.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-ld-custom-auto-complete-settings.php';
 
 		/**
-		 * The class responsible for defining all actions related to autocompleting lesson.
+		 * The class responsible for defining all actions related to autocompleting lesson,topics and timer.
 		 */
-		require_once plugin_dir_path( __DIR__ ) . 'modules/classes/class-ld-custom-auto-complete-lesson.php';
-
-		/**
-		 * The class responsible for defining all actions related to autocompleting topic.
-		 */
-		require_once plugin_dir_path( __DIR__ ) . 'modules/classes/class-ld-custom-auto-complete-topic.php';
-
-		/**
-		 * The class responsible for defining all actions related to autocompletion of lesson/topic when timer is enabled.
-		 */
-		require_once plugin_dir_path( __DIR__ ) . 'modules/classes/class-ld-custom-auto-complete-timer.php';
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-ld-custom-auto-complete-handler.php';
 
 		$this->loader = new Ld_Custom_Auto_Complete_Loader();
 	}
@@ -205,21 +180,6 @@ class Ld_Custom_Auto_Complete {
 	}
 
 	/**
-	 * Register all of the hooks related to the admin area functionality
-	 * of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function define_admin_hooks() {
-
-		$plugin_admin = new Ld_Custom_Auto_Complete_Admin( $this->get_plugin_name(), $this->get_version() );
-
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-	}
-
-	/**
 	 * Register all of the hooks related to the public-facing functionality
 	 * of the plugin.
 	 *
@@ -228,9 +188,7 @@ class Ld_Custom_Auto_Complete {
 	 */
 	private function define_public_hooks() {
 
-		$plugin_public = new Ld_Custom_Auto_Complete_Public( $this->get_plugin_name(), $this->get_version() );
-
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
+		$plugin_public = new Ld_Custom_Auto_Complete_Frontend( $this->get_plugin_name(), $this->get_version() );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 	}
 
@@ -304,35 +262,15 @@ class Ld_Custom_Auto_Complete {
 	}
 
 	/**
-	 * Register all of the hooks related to the autocompleting the lesson
+	 * Register all of the hooks related to the autocompleting the lesson,topic and timer
 	 *
 	 * @since   1.0.0
 	 * @access  private
 	 */
-	private function autocomplete_lesson() {
-		$lesson = Ld_Custom_Auto_Complete_Lesson::get_instance();
-		$this->loader->add_action( 'learndash-lesson-before', $lesson, 'ld_custom_autocomplete_lesson', 1, 3 );
-	}
-
-	/**
-	 * Register all of the hooks related to the autocompleting the topic
-	 *
-	 * @since   1.0.0
-	 * @access  private
-	 */
-	private function autocomplete_topic() {
-		$topic = Ld_Custom_Auto_Complete_Topic::get_instance();
-		$this->loader->add_action( 'learndash-topic-before', $topic, 'ld_custom_autocomplete_topic', 1, 3 );
-	}
-
-	/**
-	 * Register all of the hooks related to the autocompleting the lesson/topic when timer is enabled
-	 *
-	 * @since   1.0.0
-	 * @access  private
-	 */
-	private function autocomplete_timer() {
-		$timer = Ld_Custom_Auto_Complete_Timer::get_instance();
-		$this->loader->add_action( 'wp_ajax_mark_complete', $timer, 'ld_custom_autocomplete_timer' );
+	private function autocomplete_handler() {
+		$handler = Ld_Custom_Auto_Complete_Handler::get_instance();
+		$this->loader->add_action( 'learndash-lesson-before', $handler, 'ld_custom_autocomplete_lesson', 1, 3 );
+		$this->loader->add_action( 'learndash-topic-before', $handler, 'ld_custom_autocomplete_topic', 1, 3 );
+		$this->loader->add_action( 'wp_ajax_mark_complete', $handler, 'ld_custom_autocomplete_timer' );
 	}
 }
