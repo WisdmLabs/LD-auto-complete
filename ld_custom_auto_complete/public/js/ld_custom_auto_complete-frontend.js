@@ -1,14 +1,17 @@
+/**
+ * Handles the LearnDash timer countdown and completion process.
+ */
 jQuery(
 	function () {
 		if (jQuery( '.learndash_timer' ).length) {
 			jQuery( '.learndash_timer' ).each(
-				function (idx, item) {
-					const timer_el    = jQuery( item );
+				function (index, timer_element) {
+					const timer_el    = jQuery( timer_element );
 					let timer_seconds = timer_el.data( 'timer-seconds' );
-					const button_ref  = timer_el.data( 'button' );
+					const button_selector  = timer_el.data( 'button' );
 
-					if (typeof button_ref !== 'undefined' && jQuery( button_ref ).length) {
-						const timer_button_el = jQuery( button_ref );
+					if (typeof button_selector !== 'undefined' && jQuery( button_selector ).length) {
+						const timer_button_el = jQuery( button_selector );
 
 						if (typeof timer_seconds !== 'undefined' && typeof timer_button_el !== 'undefined') {
 							timer_seconds = parseInt( timer_seconds );

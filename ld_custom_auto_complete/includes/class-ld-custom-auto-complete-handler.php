@@ -85,9 +85,10 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Handler' ) ) {
 		 */
 		public function ld_custom_autocomplete_timer() {
 			if ( isset( $_POST['nonce'] ) && ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), 'ld_custom_mark_complete_nonce' ) ) {
+				$nonce_error_message = apply_filters( 'ld_custom_autocomplete_timer_nonce_error_message', __( 'Please provide proper nonce', 'ld_custom_auto_complete' ) );
 				wp_send_json_error(
 					array(
-						'message' => __( 'Please provide proper nonce', 'ld_custom_auto_complete' ),
+						'message' => $nonce_error_message,
 						'type'    => 'error',
 					),
 					403
@@ -99,21 +100,22 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Handler' ) ) {
 				$is_complete = learndash_process_mark_complete( $user_id, intval( $_POST['post_id'] ), false, intval( $_POST['course_id'] ) );
 			}
 			if ( true === $is_complete ) {
+				$success_message = apply_filters( 'ld_custom_autocomplete_timer_success_message', __( 'Mark complete successfully done.', 'ld_custom_auto_complete' ) );
 				wp_send_json_success(
 					array(
-						'message' => __( 'Mark complete Sucessfully done.', 'ld_custom_auto_complete' ),
+						'message' => $success_message,
 						'type'    => 'success',
 					)
 				);
-			} else {
+			}
+			$error_message = apply_filters( 'ld_custom_autocomplete_timer_failure_message', __( 'Mark complete failed due to insufficient permissions.', 'ld_custom_auto_complete' ) );
 				wp_send_json_error(
 					array(
-						'message' => __( 'Mark complete Failed due to insufficient permissions.', 'ld_custom_auto_complete' ),
+						'message' => $error_message,
 						'type'    => 'error',
 					),
 					403
 				);
-			}
 		}
 
 		/**
