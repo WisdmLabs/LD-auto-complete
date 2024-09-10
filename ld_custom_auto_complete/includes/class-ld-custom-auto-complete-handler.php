@@ -96,8 +96,11 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Handler' ) ) {
 			}
 			$user_id     = get_current_user_id();
 			$is_complete = false;
-			if ( isset( $_POST['post_id'] ) && isset( $_POST['course_id'] ) && isset( $_POST['timer'] ) && '0' === $_POST['timer'] ) {
-				$is_complete = learndash_process_mark_complete( $user_id, intval( $_POST['post_id'] ), false, intval( $_POST['course_id'] ) );
+			$post_id     = isset( $_POST['post_id'] ) ? filter_var( wp_unslash( $_POST['post_id'] ), FILTER_SANITIZE_NUMBER_INT ) : '0';
+			$course_id   = isset( $_POST['course_id'] ) ? filter_var( wp_unslash( $_POST['course_id'] ), FILTER_SANITIZE_NUMBER_INT ) : '0';
+			$timer       = isset( $_POST['timer'] ) ? filter_var( wp_unslash( $_POST['timer'] ), FILTER_SANITIZE_NUMBER_INT ) : '';
+			if ( '0' !== $post_id && '0' !== $course_id && '0' === $timer ) {
+				$is_complete = learndash_process_mark_complete( $user_id, absint( $post_id ), false, absint( $course_id ) );
 			}
 			if ( true === $is_complete ) {
 				$success_message = apply_filters( 'ld_custom_autocomplete_timer_success_message', __( 'Mark complete successfully done.', 'ld_custom_auto_complete' ) );

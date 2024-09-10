@@ -19,7 +19,6 @@ namespace Ld_Custom_Auto_Complete\Includes;
  */
 use Ld_Custom_Auto_Complete\Includes\Ld_Custom_Auto_Complete_Loader;
 use Ld_Custom_Auto_Complete\Includes\Ld_Custom_Auto_Complete_Activator;
-use Ld_Custom_Auto_Complete\Includes\Ld_Custom_Auto_Complete_Deactivator;
 use Ld_Custom_Auto_Complete\Includes\Ld_Custom_Auto_Complete_I18n;
 
 /**
@@ -95,7 +94,6 @@ class Ld_Custom_Auto_Complete {
 
 		$this->load_dependencies();
 		$this->handle_activation();
-		$this->handle_deactivation();
 		$this->set_locale();
 		$this->define_public_hooks();
 		$this->add_learndash_setting();
@@ -125,12 +123,6 @@ class Ld_Custom_Auto_Complete {
 		 * core plugin.
 		 */
 		require_once plugin_dir_path( __DIR__ ) . 'includes/class-ld-custom-auto-complete-activator.php';
-
-		/**
-		 * The class responsible for handling deactivation functionalities of the
-		 * core plugin.
-		 */
-		require_once plugin_dir_path( __DIR__ ) . 'includes/class-ld-custom-auto-complete-deactivator.php';
 
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
@@ -198,14 +190,6 @@ class Ld_Custom_Auto_Complete {
 	private function handle_activation() {
 		$plugin_activator = new Ld_Custom_Auto_Complete_Activator();
 		$plugin_activator->activate();
-	}
-
-	/**
-	 * Handle plugin deactivation
-	 */
-	private function handle_deactivation() {
-		$plugin_activator = new Ld_Custom_Auto_Complete_Deactivator();
-		$plugin_activator->deactivate();
 	}
 
 	/**

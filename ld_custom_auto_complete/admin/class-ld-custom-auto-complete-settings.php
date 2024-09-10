@@ -60,49 +60,49 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Settings' ) ) {
 		 */
 		public function ld_custom_autocomplete_add_setting( $setting_option_fields = array(), $settings_metabox_key = '' ) {
 
-			if ( 'learndash-topic-display-content-settings' === $settings_metabox_key || 'learndash-lesson-display-content-settings' === $settings_metabox_key ) {
-				$post_id            = get_the_ID();
-				$is_autocomplete_on = get_post_meta( $post_id, LD_CUSTOM_AUTO_COMPLETE_META, true );
+			if ( 'learndash-topic-display-content-settings' !== $settings_metabox_key && 'learndash-lesson-display-content-settings' !== $settings_metabox_key ) {
+				return $setting_option_fields;
+			}
+			$post_id            = get_the_ID();
+			$is_autocomplete_on = get_post_meta( $post_id, LD_CUSTOM_AUTO_COMPLETE_META, true );
+			$label              = sprintf(
+				// translators: placeholder: Lesson.
+				esc_html_x( '%s Autocomplete', 'placeholder: Lesson', 'ld_custom_auto_complete' ),
+				learndash_get_custom_label( 'lesson' )
+			);
+			$help_text = sprintf(
+				// translators: placeholder: lesson.
+				esc_html_x( 'Turning this on will allow you to autocomplete %s.', 'placeholder: Lesson.', 'ld_custom_auto_complete' ),
+				learndash_get_custom_label_lower( 'lesson' )
+			);
 
-				if ( 'learndash-topic-display-content-settings' === $settings_metabox_key ) {
-					$label = sprintf(
-							// translators: placeholder: Topic.
-						esc_html_x( '%s Autocomplete', 'placeholder: Topic', 'learndash' ),
-						learndash_get_custom_label( 'topic' )
-					);
-						$help_text = sprintf(
-							// translators: placeholder: topic.
-							esc_html_x( 'Turning this on will allow you to autocomplete %s.', 'placeholder: Topic.', 'learndash' ),
-							learndash_get_custom_label_lower( 'topic' )
-						);
-				} else {
-					$label = sprintf(
-						// translators: placeholder: Lesson.
-						esc_html_x( '%s Autocomplete', 'placeholder: Lesson', 'learndash' ),
-						learndash_get_custom_label( 'lesson' )
-					);
+			if ( 'learndash-topic-display-content-settings' === $settings_metabox_key ) {
+				$label = sprintf(
+						// translators: placeholder: Topic.
+					esc_html_x( '%s Autocomplete', 'placeholder: Topic', 'ld_custom_auto_complete' ),
+					learndash_get_custom_label( 'topic' )
+				);
 					$help_text = sprintf(
-						// translators: placeholder: lesson.
-						esc_html_x( 'Turning this on will allow you to autocomplete %s.', 'placeholder: Lesson.', 'learndash' ),
-						learndash_get_custom_label_lower( 'lesson' )
+						// translators: placeholder: topic.
+						esc_html_x( 'Turning this on will allow you to autocomplete %s.', 'placeholder: Topic.', 'ld_custom_auto_complete' ),
+						learndash_get_custom_label_lower( 'topic' )
 					);
-				}
+			}
 
-				if ( ! isset( $setting_option_fields[ LD_CUSTOM_AUTO_COMPLETE_META ] ) ) {
-					$setting_option_fields[ LD_CUSTOM_AUTO_COMPLETE_META ] = array(
-						'name'      => LD_CUSTOM_AUTO_COMPLETE_META,
-						'label'     => $label,
-						'type'      => 'checkbox-switch',
-						'class'     => '-medium',
-						'value'     => $is_autocomplete_on,
-						'default'   => '',
-						'options'   => array(
-							''   => '',
-							'on' => '',
-						),
-						'help_text' => $help_text,
-					);
-				}
+			if ( ! isset( $setting_option_fields[ LD_CUSTOM_AUTO_COMPLETE_META ] ) ) {
+				$setting_option_fields[ LD_CUSTOM_AUTO_COMPLETE_META ] = array(
+					'name'      => LD_CUSTOM_AUTO_COMPLETE_META,
+					'label'     => $label,
+					'type'      => 'checkbox-switch',
+					'class'     => '-medium',
+					'value'     => $is_autocomplete_on,
+					'default'   => '',
+					'options'   => array(
+						''   => '',
+						'on' => '',
+					),
+					'help_text' => $help_text,
+				);
 			}
 			return $setting_option_fields;
 		}
