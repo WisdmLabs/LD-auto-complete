@@ -62,16 +62,7 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Handler' ) ) {
 		 * @return void
 		 */
 		public function ld_custom_autocomplete_lesson( $post_id, $course_id, $user_id ) {
-			$is_autocomplete_on = get_post_meta( $post_id, LD_CUSTOM_AUTO_COMPLETE_META, true );
-
-			if ( 'on' !== $is_autocomplete_on ) {
-				return;
-			}
-			$is_available = ld_lesson_access_from( $post_id, $user_id, $course_id );
-			if ( ! empty( $is_available ) ) {
-				return;
-			}
-				learndash_process_mark_complete( $user_id, $post_id, false, $course_id );
+			$this->ld_custom_autocomplete_checker( $post_id, $course_id, $user_id, true );
 		}
 
 		/**
@@ -130,17 +121,41 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Handler' ) ) {
 		 * @return void
 		 */
 		public function ld_custom_autocomplete_topic( $post_id, $course_id, $user_id ) {
+			$this->ld_custom_autocomplete_checker( $post_id, $course_id, $user_id, false );
+		}
+
+		/**
+		 * Autocomplete a lesson or topic.
+		 *
+		 * Checks if the lesson or topic is set to autocomplete and if the user has access to it.
+		 *
+		 * @param int  $post_id The ID of the lesson or topic.
+		 * @param int  $course_id The ID of the course.
+		 * @param int  $user_id The ID of the user.
+		 * @param bool $is_lesson Whether the current content is a lesson or topic. Defaults to true.
+		 * @return void
+		 */
+		public function ld_custom_autocomplete_checker( $post_id, $course_id, $user_id, $is_lesson = true ) {
 			$is_autocomplete_on = get_post_meta( $post_id, LD_CUSTOM_AUTO_COMPLETE_META, true );
 			if ( 'on' !== $is_autocomplete_on ) {
 				return;
 			}
-			$lesson_id           = learndash_get_lesson_id( $post_id, $course_id );
-			$is_available_topic  = ld_lesson_access_from( $post_id, $user_id, $course_id );
-			$is_available_lesson = ld_lesson_access_from( $lesson_id, $user_id, $course_id );
-			if ( ! empty( $is_available_topic ) && ! empty( $is_available_lesson ) ) {
+
+			$is_available_content = ld_lesson_access_from( $post_id, $user_id, $course_id );
+
+			if ( ! empty( $is_available_content ) ) {
 				return;
 			}
-				learndash_process_mark_complete( $user_id, $post_id, false, $course_id );
+
+			if ( ! $is_lesson ) {
+				$lesson_id           = learndash_get_lesson_id( $post_id, $course_id );
+				$is_available_lesson = ld_lesson_access_from( $lesson_id, $user_id, $course_id );
+
+				if ( ! empty( $is_available_content ) && ! empty( $is_available_lesson ) ) {
+					return;
+				}
+			}
+			learndash_process_mark_complete( $user_id, $post_id, false, $course_id );
 		}
 	}
 }
