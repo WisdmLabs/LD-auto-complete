@@ -1,14 +1,24 @@
+/**
+ * Handles the LearnDash timer countdown and completion process.
+ */
+
 jQuery(
+	/**
+	 * This function retrieves the countdown timer from the page, stores the timer state in a cookie to ensure persistence across
+	 * page reloads, and sends an AJAX request to mark the lesson as complete when the timer expires. It also manages to hide
+	 * the complete button and updates cookies for timer tracking.
+	 */
 	function () {
+		// Check if any LearnDash timers exist on the page.
 		if (jQuery( '.learndash_timer' ).length) {
 			jQuery( '.learndash_timer' ).each(
-				function (idx, item) {
-					const timer_el    = jQuery( item );
-					let timer_seconds = timer_el.data( 'timer-seconds' );
-					const button_ref  = timer_el.data( 'button' );
+				function (index, timer_element) {
+					const timer_el        = jQuery( timer_element );
+					let timer_seconds     = timer_el.data( 'timer-seconds' );
+					const button_selector = timer_el.data( 'button' );
 
-					if (typeof button_ref !== 'undefined' && jQuery( button_ref ).length) {
-						const timer_button_el = jQuery( button_ref );
+					if (typeof button_selector !== 'undefined' && jQuery( button_selector ).length) {
+						const timer_button_el = jQuery( button_selector );
 
 						if (typeof timer_seconds !== 'undefined' && typeof timer_button_el !== 'undefined') {
 							timer_seconds = parseInt( timer_seconds );
@@ -20,15 +30,18 @@ jQuery(
 
 							const cookie_timer_seconds = jQuery.cookie( cookie_name );
 
+							// If cookie exists, update the timer with the cookie value.
 							if (typeof cookie_timer_seconds !== 'undefined') {
 								timer_seconds = parseInt( cookie_timer_seconds );
 							}
 
+							// Check if the timer is still running.
 							if (timer_seconds >= 1) {
 								const learndash_timer_var = setInterval(
 									function () {
 										timer_seconds -= 1;
 
+										// When the timer reaches zero, fire the ajax request.
 										if (timer_seconds <= 0) {
 											clearInterval( learndash_timer_var );
 											timer_button_el.hide();
@@ -51,6 +64,7 @@ jQuery(
 
 											jQuery.cookie( updated_cookie_name, 0, { path: '/' } );
 
+											// Send an AJAX request to mark the lesson complete.
 											jQuery.ajax(
 												{
 													url: ld_custom_auto_complete_localized_data.ajax_url,

@@ -51,30 +51,6 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Handler' ) ) {
 		}
 
 		/**
-		 * Autocomplete a lesson.
-		 *
-		 * Checks if the lesson is set to autocomplete and if the user has access to it.
-		 * If the lesson is set to autocomplete and the user does not have access, it marks the lesson as complete for the user.
-		 *
-		 * @param int $post_id The ID of the lesson.
-		 * @param int $course_id The ID of the course.
-		 * @param int $user_id The ID of the user.
-		 * @return void
-		 */
-		public function ld_custom_autocomplete_lesson( $post_id, $course_id, $user_id ) {
-			$is_autocomplete_on = get_post_meta( $post_id, LD_CUSTOM_AUTO_COMPLETE_META, true );
-
-			if ( 'on' !== $is_autocomplete_on ) {
-				return;
-			}
-			$is_available = ld_lesson_access_from( $post_id, $user_id, $course_id );
-			if ( ! empty( $is_available ) ) {
-				return;
-			}
-				learndash_process_mark_complete( $user_id, $post_id, false, $course_id );
-		}
-
-		/**
 		 * Handles the timer completion ajax request.
 		 *
 		 * This function is responsible for handling the ajax request when the timer
@@ -85,9 +61,10 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Handler' ) ) {
 		 */
 		public function ld_custom_autocomplete_timer() {
 			if ( isset( $_POST['nonce'] ) && ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), 'ld_custom_mark_complete_nonce' ) ) {
+				$nonce_error_message = apply_filters( 'ld_custom_autocomplete_timer_nonce_error_message', __( 'Please provide proper nonce', 'ld_custom_auto_complete' ) );
 				wp_send_json_error(
 					array(
-						'message' => __( 'Please provide proper nonce', 'ld_custom_auto_complete' ),
+						'message' => $nonce_error_message,
 						'type'    => 'error',
 					),
 					403
@@ -95,47 +72,62 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Handler' ) ) {
 			}
 			$user_id     = get_current_user_id();
 			$is_complete = false;
-			if ( isset( $_POST['post_id'] ) && isset( $_POST['course_id'] ) && isset( $_POST['timer'] ) && '0' === $_POST['timer'] ) {
-				$is_complete = learndash_process_mark_complete( $user_id, intval( $_POST['post_id'] ), false, intval( $_POST['course_id'] ) );
+			$post_id     = isset( $_POST['post_id'] ) ? filter_var( wp_unslash( $_POST['post_id'] ), FILTER_SANITIZE_NUMBER_INT ) : '0';
+			$course_id   = isset( $_POST['course_id'] ) ? filter_var( wp_unslash( $_POST['course_id'] ), FILTER_SANITIZE_NUMBER_INT ) : '0';
+			$timer       = isset( $_POST['timer'] ) ? filter_var( wp_unslash( $_POST['timer'] ), FILTER_SANITIZE_NUMBER_INT ) : '';
+			if ( '0' !== $post_id && '0' !== $course_id && '0' === $timer ) {
+				$is_complete = learndash_process_mark_complete( $user_id, absint( $post_id ), false, absint( $course_id ) );
 			}
 			if ( true === $is_complete ) {
+				$success_message = apply_filters( 'ld_custom_autocomplete_timer_success_message', __( 'Mark complete successfully done.', 'ld_custom_auto_complete' ) );
 				wp_send_json_success(
 					array(
-						'message' => __( 'Mark complete Sucessfully done.', 'ld_custom_auto_complete' ),
+						'message' => $success_message,
 						'type'    => 'success',
 					)
 				);
-			} else {
+			}
+			$error_message = apply_filters( 'ld_custom_autocomplete_timer_failure_message', __( 'Mark complete failed due to insufficient permissions.', 'ld_custom_auto_complete' ) );
 				wp_send_json_error(
 					array(
-						'message' => __( 'Mark complete Failed due to insufficient permissions.', 'ld_custom_auto_complete' ),
+						'message' => $error_message,
 						'type'    => 'error',
 					),
 					403
 				);
-			}
 		}
 
 		/**
-		 * Autocompletes a topic.
+		 * Autocomplete a lesson or topic.
 		 *
-		 * @param int $post_id The ID of the topic.
+		 * Checks if the lesson or topic is set to autocomplete and if the user has access to it.
+		 *
+		 * @param int $post_id The ID of the lesson or topic.
 		 * @param int $course_id The ID of the course.
 		 * @param int $user_id The ID of the user.
 		 * @return void
 		 */
-		public function ld_custom_autocomplete_topic( $post_id, $course_id, $user_id ) {
+		public function ld_custom_autocomplete_checker( $post_id, $course_id, $user_id ) {
 			$is_autocomplete_on = get_post_meta( $post_id, LD_CUSTOM_AUTO_COMPLETE_META, true );
 			if ( 'on' !== $is_autocomplete_on ) {
 				return;
 			}
-			$lesson_id           = learndash_get_lesson_id( $post_id, $course_id );
-			$is_available_topic  = ld_lesson_access_from( $post_id, $user_id, $course_id );
-			$is_available_lesson = ld_lesson_access_from( $lesson_id, $user_id, $course_id );
-			if ( ! empty( $is_available_topic ) && ! empty( $is_available_lesson ) ) {
+
+			$is_available_content = ld_lesson_access_from( $post_id, $user_id, $course_id );
+
+			if ( ! empty( $is_available_content ) ) {
 				return;
 			}
-				learndash_process_mark_complete( $user_id, $post_id, false, $course_id );
+
+			if ( 'sfwd-topic' === get_post_type( $post_id ) ) {
+				$lesson_id           = learndash_get_lesson_id( $post_id, $course_id );
+				$is_available_lesson = ld_lesson_access_from( $lesson_id, $user_id, $course_id );
+
+				if ( ! empty( $is_available_content ) && ! empty( $is_available_lesson ) ) {
+					return;
+				}
+			}
+			learndash_process_mark_complete( $user_id, $post_id, false, $course_id );
 		}
 	}
 }

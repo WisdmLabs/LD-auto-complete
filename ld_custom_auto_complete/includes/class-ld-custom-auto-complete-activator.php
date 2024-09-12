@@ -31,7 +31,7 @@ class Ld_Custom_Auto_Complete_Activator {
 	 * @since 1.0.0
 	 */
 	public function activate() {
-		add_action( 'init', array( $this, 'ld_custom_is_learndash_active' ) );
+		add_action( 'admin_init', array( $this, 'ld_custom_is_learndash_active' ) );
 	}
 
 	/**

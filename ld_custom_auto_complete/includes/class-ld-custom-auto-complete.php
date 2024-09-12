@@ -19,7 +19,6 @@ namespace Ld_Custom_Auto_Complete\Includes;
  */
 use Ld_Custom_Auto_Complete\Includes\Ld_Custom_Auto_Complete_Loader;
 use Ld_Custom_Auto_Complete\Includes\Ld_Custom_Auto_Complete_Activator;
-use Ld_Custom_Auto_Complete\Includes\Ld_Custom_Auto_Complete_Deactivator;
 use Ld_Custom_Auto_Complete\Includes\Ld_Custom_Auto_Complete_I18n;
 
 /**
@@ -95,7 +94,6 @@ class Ld_Custom_Auto_Complete {
 
 		$this->load_dependencies();
 		$this->handle_activation();
-		$this->handle_deactivation();
 		$this->set_locale();
 		$this->define_public_hooks();
 		$this->add_learndash_setting();
@@ -125,12 +123,6 @@ class Ld_Custom_Auto_Complete {
 		 * core plugin.
 		 */
 		require_once plugin_dir_path( __DIR__ ) . 'includes/class-ld-custom-auto-complete-activator.php';
-
-		/**
-		 * The class responsible for handling deactivation functionalities of the
-		 * core plugin.
-		 */
-		require_once plugin_dir_path( __DIR__ ) . 'includes/class-ld-custom-auto-complete-deactivator.php';
 
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
@@ -201,14 +193,6 @@ class Ld_Custom_Auto_Complete {
 	}
 
 	/**
-	 * Handle plugin deactivation
-	 */
-	private function handle_deactivation() {
-		$plugin_activator = new Ld_Custom_Auto_Complete_Deactivator();
-		$plugin_activator->deactivate();
-	}
-
-	/**
 	 * Run the loader to execute all of the hooks with WordPress.
 	 *
 	 * @since    1.0.0
@@ -269,8 +253,8 @@ class Ld_Custom_Auto_Complete {
 	 */
 	private function autocomplete_handler() {
 		$handler = Ld_Custom_Auto_Complete_Handler::get_instance();
-		$this->loader->add_action( 'learndash-lesson-before', $handler, 'ld_custom_autocomplete_lesson', 1, 3 );
-		$this->loader->add_action( 'learndash-topic-before', $handler, 'ld_custom_autocomplete_topic', 1, 3 );
+		$this->loader->add_action( 'learndash-lesson-before', $handler, 'ld_custom_autocomplete_checker', 1, 3 );
+		$this->loader->add_action( 'learndash-topic-before', $handler, 'ld_custom_autocomplete_checker', 1, 3 );
 		$this->loader->add_action( 'wp_ajax_mark_complete', $handler, 'ld_custom_autocomplete_timer' );
 	}
 }
