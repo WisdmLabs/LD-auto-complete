@@ -253,8 +253,8 @@ class Ld_Custom_Auto_Complete {
 	 */
 	private function autocomplete_handler() {
 		$handler = Ld_Custom_Auto_Complete_Handler::get_instance();
-		$this->loader->add_action( 'learndash-lesson-before', $handler, 'ld_custom_autocomplete_lesson', 1, 3 );
-		$this->loader->add_action( 'learndash-topic-before', $handler, 'ld_custom_autocomplete_topic', 1, 3 );
+		$this->loader->add_action( 'learndash-lesson-before', $handler, 'ld_custom_autocomplete_checker', 1, 3 );
+		$this->loader->add_action( 'learndash-topic-before', $handler, 'ld_custom_autocomplete_checker', 1, 3 );
 		$this->loader->add_action( 'wp_ajax_mark_complete', $handler, 'ld_custom_autocomplete_timer' );
 	}
 }

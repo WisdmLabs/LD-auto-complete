@@ -51,21 +51,6 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Handler' ) ) {
 		}
 
 		/**
-		 * Autocomplete a lesson.
-		 *
-		 * Checks if the lesson is set to autocomplete and if the user has access to it.
-		 * If the lesson is set to autocomplete and the user does not have access, it marks the lesson as complete for the user.
-		 *
-		 * @param int $post_id The ID of the lesson.
-		 * @param int $course_id The ID of the course.
-		 * @param int $user_id The ID of the user.
-		 * @return void
-		 */
-		public function ld_custom_autocomplete_lesson( $post_id, $course_id, $user_id ) {
-			$this->ld_custom_autocomplete_checker( $post_id, $course_id, $user_id, true );
-		}
-
-		/**
 		 * Handles the timer completion ajax request.
 		 *
 		 * This function is responsible for handling the ajax request when the timer
@@ -113,29 +98,16 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Handler' ) ) {
 		}
 
 		/**
-		 * Autocompletes a topic.
-		 *
-		 * @param int $post_id The ID of the topic.
-		 * @param int $course_id The ID of the course.
-		 * @param int $user_id The ID of the user.
-		 * @return void
-		 */
-		public function ld_custom_autocomplete_topic( $post_id, $course_id, $user_id ) {
-			$this->ld_custom_autocomplete_checker( $post_id, $course_id, $user_id, false );
-		}
-
-		/**
 		 * Autocomplete a lesson or topic.
 		 *
 		 * Checks if the lesson or topic is set to autocomplete and if the user has access to it.
 		 *
-		 * @param int  $post_id The ID of the lesson or topic.
-		 * @param int  $course_id The ID of the course.
-		 * @param int  $user_id The ID of the user.
-		 * @param bool $is_lesson Whether the current content is a lesson or topic. Defaults to true.
+		 * @param int $post_id The ID of the lesson or topic.
+		 * @param int $course_id The ID of the course.
+		 * @param int $user_id The ID of the user.
 		 * @return void
 		 */
-		public function ld_custom_autocomplete_checker( $post_id, $course_id, $user_id, $is_lesson = true ) {
+		public function ld_custom_autocomplete_checker( $post_id, $course_id, $user_id ) {
 			$is_autocomplete_on = get_post_meta( $post_id, LD_CUSTOM_AUTO_COMPLETE_META, true );
 			if ( 'on' !== $is_autocomplete_on ) {
 				return;
@@ -147,7 +119,7 @@ if ( ! class_exists( 'Ld_Custom_Auto_Complete_Handler' ) ) {
 				return;
 			}
 
-			if ( ! $is_lesson ) {
+			if ( 'sfwd-topic' === get_post_type( $post_id ) ) {
 				$lesson_id           = learndash_get_lesson_id( $post_id, $course_id );
 				$is_available_lesson = ld_lesson_access_from( $lesson_id, $user_id, $course_id );
 
